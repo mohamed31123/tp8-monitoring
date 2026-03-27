@@ -1,0 +1,33 @@
+groups:
+  - name: tp8-alertes
+    rules:
+
+      # Alerte : application inaccessible
+      - alert: ApplicationIndisponible
+        expr: up{job="tp8-spring-app"} == 0
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Application TP8 indisponible"
+          description: "Aucune réponse depuis plus de 10 secondes."
+
+      # Alerte : latence élevée (> 1 seconde)
+      - alert: LatenceElevee
+        expr: rate(http_server_requests_seconds_sum[1m]) / rate(http_server_requests_seconds_count[1m]) > 1
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Latence HTTP élevée détectée"
+          description: "Temps de réponse moyen supérieur à 1 seconde."
+
+      # Alerte : mémoire heap > 80%
+      - alert: MemoireHeapCritique
+        expr: jvm_memory_used_bytes{area="heap"} / jvm_memory_max_bytes{area="heap"} > 0.8
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Utilisation mémoire heap critique"
+          description: "La mémoire heap JVM dépasse 80% de sa capacité."
